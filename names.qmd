@@ -1,0 +1,56 @@
+# Names
+
+## Introduction
+
+> “What’s in a name? That which we call a rose by any other name would smell as sweet.” --- Shakespeare
+
+Names describe and communicate function.
+
+## Questions
+
+So that a variable in a data set can easily be mapped to a question in a questionnaire, the name of each variable should encode information about where in the questionnaire to find the question whose data it captures.
+
+The general template for naming should be:
+
+`s{section_id}q{question_number}`
+
+To unpack this template:
+
+- `s` and `q` are delimiters for section number and question number, respectively
+- `{section_id}` is the zero-padded section ID. If the section ID is simply a number, then that number should be zero-padded (e.g., for section 9, write `09`). If the section ID contains numbers and letters, zero-pad the number and put the letter in lowercase (e.g., for section 7b, write `07b`, for section 4b2, write `04b2`; for section 21a, write `21a`).
+- `{question_number}` is the zero-padded question number. For questions with numbers, zero-pad the the number appropriately (question 4 becomes `04`, question 12, becomes `12`, etc). For multi-part questions, follow the guidance of the questionnaire (e.g., if one finds question 4b, write `04b`, if one finds 12a_1, write `12a_1`). If, however, the questionnaire provides no explicit guidance, use letter subscripts (e.g., if question 3 has 2 parts, write `03a` and `03b`).
+
+## Filter variables
+
+For questions that are FILTER questions, the variable naming template should follow the template for questions--with a few changes:
+
+`s{section_id}_FILTER{filter_number}`
+
+To explain the components:
+
+- `s`. Same as for the question template.
+- `{section_id}`. Same as for the question template.
+- `_FILTER`. This a delimiter that serves the same purpose as `q` in the questionnaire template.
+- `{filter_number}`. Simple number without zero-padding (e.g., if FILTER1 in PAPI, write `1`)
+
+## Other variables
+
+If there are other variables in the CAPI app, name them according to their function.
+
+If the variable is meant to be data (e.g., ID of the mother of the child), then follow the guidance of the questionnaire.
+
+If the variable is meant to be a "service" variable that exists solely to help with updating or running the CAPI app (e.g., `current_school_year`, `last_agricultural_season`, `interview_day_of_week`, etc.), then the variable can be named in whatever makes sense. The best names are those that make the variable's content and/or function self-expanatory.
+
+## Rosters
+
+So that one can quickly understand the contents of a roster, name rosters should communicate the observations they collect. If a roster collects household members, name it `members`. If a roster collects plots, name it `plots`. And if a roster collect members but in the education module, consider `members_education`.
+
+This proposal aims to make code about rosters self-documenting. In Designer, `members.Count(member => member.s01q03 == 1) == 1)` is easier to read than `s01_hhold.Count(x => x.s01q03 == 1) == 1)`. Thanks to the name `members`, the reader understands that one is working with a collection of members. In exported data, raw data files have self-documenting names. At a glance, one understands that `members.dta` contains all data about household members.
+
+## Macros
+
+TODO
+
+## Reusable categories
+
+TODO

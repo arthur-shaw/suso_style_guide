@@ -1,0 +1,5 @@
+# Preface {.unnumbered}
+
+Most Survey Solutions developers, over time, develop their own personal style. Because that style is personal, by definition, it varies from one developer to the next.
+
+This book aims to describe a corporate style for the LSMS Team at the World Bank.

@@ -1,0 +1,6 @@
+# do not track files built by Quarto
+# these will be uploaded to GitHub Pages
+_book/*
+.quarto/*
+site_libs/*
+

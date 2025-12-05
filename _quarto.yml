@@ -1,0 +1,14 @@
+project:
+  type: book
+
+book:
+  title: "Survey Solutions Style Guide"
+  author: "LSMS Team, World Bank"
+  chapters:
+    - index.qmd
+    - names.qmd
+    - comments.qmd
+
+format:
+  html:
+    theme: cosmo

@@ -1,0 +1,148 @@
+# Comments
+
+## Introduction
+
+TODO
+
+## When
+
+If not for others, at least for your future self, err on the side of writing comments. There are a few reasons for this.
+
+First, comments communicate intent in a way that code may not. Whether or not someone understand the code, they will certainly understand the comment. With an understanding of both one comment and code, one can check whether the code fulfills the intent of the comment. If not, the code may be wrong, even if syntactically correct. Without comments, one may not know what the code intends to do.
+
+Second, comments can help the reader with context. During development, variable names and values are loaded in short-term memory. Weeks or months later, those same symbols may no longer make sense. Through comments, one improves recall to reason about the code--what it does, how it does it, and why it needs to do it.
+
+For example, this simple comment on roster-level enabling condition provides useful context to intuit/understand what `s02_FILTER1` captures and what subset of members will have their roster row enabled:
+
+```csharp
+// father or mother of child under school-age threshold
+s02_FILTER1 == true
+```
+
+## How much
+
+Deciding how much to comment is more art than science. Nevertheless, there are probably a few principles that drive artistic decisions.
+
+### Principle 1: explain what you yourself didn't know
+
+In writing expressions, we often have to learn something new or search for an old solution to a similar problem. In these cases, write comments that explain what was not obvious before you finished coding. For others like you--and for your future self--the code will not be obvious either.
+
+In the following example, code is constructing an array of the IDs of a child's parents.
+
+```csharp
+members
+  // filter to child
+  .Where(child => child.@rowcode == child_rowcode)
+  // select the IDs of the father and mother, respectively
+  // grabbing the ID if present and returning `null` otherwise
+  .SelectMany(child => new[] { 
+      child.s01q07?.FirstOrDefault(), 
+      child.s01q11?.FirstOrDefault()
+  })
+  // removing any null values from the array
+  .Where(id => id != null)
+  // convert from roster array to a simple array
+  .ToArray()
+  // check whether the selected member's ID
+  // is in the array of IDs of the child's parents
+  .Contains(s04aq09.First())
+```
+
+### Principle 2: explain the objective
+
+For varibles and complex expressions, it is often worth explaining what the code is trying to do.
+
+To do so, consider adding a multi-line comment at the top of the code that explains the code's objective and, if relevant, intermediary steps.
+
+In the example below, the code takes a preloaded character vector whose contents is a delimited string of random numbers for possible row of the roster and extracts the relevant number from that string to construct the name of a random image to show the respondent. The multi-line comment explains what the code aims to do overall and what steps it undertakes to do so. The inline comment explain smaller steps in the process that bear explanation because the code is uncommon.
+
+```csharp
+/* 
+construct the name of the image
+- pre-pend `image_`
+- extract the image number
+- append as a two-character wide zero-padded string
+*/
+
+"image_" +
+  // parse extract the DCE image index from `random_dce_images`
+  int.Parse(
+    random_dce_images
+    // split string by semi-colon
+    // take the element in array index of rowcode minus one
+    .Split(';')[@rowcode-1]
+    // split the retrieved string by comma
+    // take the element equal to the image number minus one
+    .Split(',')[1-1]
+  )
+  // convert to zero-padded string two characters in width
+  .ToString("D2")
+```
+
+### Principle 3: explain inputs and outputs
+
+For variables that perform computations or transformations, one should document them as one might functions: describe the input variables and the output.
+
+In the example below, the variable computes the age of the respondent based on the potentially incomplete answers provided for date of birth (i.e., day, month, year) and self-reported age. To facilitate reading code, the multi-line comment block at the top of the code describes the input variables and the output values.
+
+```csharp
+/* 
+CALCUL D'ÂGE AVEC TROIS CAS DE FIGURE
+
+	1. Tous les éléments de date de naissance renseignés
+	2. Jour est le seul élément manquant
+	3. Mois et ou jour manquant
+ENTRÉES
+	Date de naissance:
+		- Jour: s01q03a
+		- Mois: s01q03b
+		- Année: s01q03c
+	Age délcaré (si date de naissance inconnue)
+	Date de l'entretien: visite1[1].s00q23a
+SORTIES
+	1. Pourvue les informations soient disponsibles, Âge calculé
+	2. Faute d'information, une valeur nulle
+*/
+
+// si tous les éléments de la date de naissance sont rensignés
+s01q03a.InRange(1,31) && s01q03b.InRange(1,12) && 
+s01q03c.InRange(1900,s00q23a.Value.Year) && s00q23a.Value.Year!=null ? 
+
+FullYearsBetween(
+	new DateTime ( (int) s01q03c, (int) s01q03b, (int) s01q03a ) ,
+    s00q23a 
+)
+
+:
+
+// si jour est manquant, prendre jour comme 15
+s01q03a==$neSaitPas && s01q03b.InRange(1,12) && s01q03c.InRange(1900,s00q23a.Value.Year) 
+&& s00q23a.Value.Year!=null ? 
+
+FullYearsBetween(
+	new DateTime ( (int) s01q03c, (int) s01q03b, (int) jour_nais ) ,
+    s00q23a 
+)
+
+:
+
+//si jour et mois sont manquants, prendre jour le 1 juillet
+s01q03a==$neSaitPas && s01q03b==$neSaitPas  && s01q03c.InRange(1900,s00q23a.Value.Year) 
+&& s00q23a.Value.Year!=null ? 
+
+FullYearsBetween(
+	new DateTime ( (int) s01q03c, (int) mois_nais, (int) 1 ) ,
+    s00q23a 
+)
+
+:
+
+// si année de naissance n'est pas connue
+s01q03c==$neSaitPas ?
+
+s01q04a :
+
+null
+
+```
+
